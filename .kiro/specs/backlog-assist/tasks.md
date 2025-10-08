@@ -1,19 +1,18 @@
 # 実装計画
 
 - [x] 1. プロジェクト初期設定とコア構造の構築
-
   - Vite + React + TypeScript プロジェクトの初期化
   - Tailwind CSS の設定とベースレイアウトの作成
   - プロジェクト構造の作成（components, contexts, types, utils, data フォルダ）
   - _要件: 5.1, 5.2_
 
-- [ ] 2. 型定義とデータモデルの実装
-  - [ ] 2.1 コア型定義の作成
+- [x] 2. 型定義とデータモデルの実装
+  - [x] 2.1 コア型定義の作成
     - ChecklistItem, RuleSet, ReportData インターフェースの定義
     - ValidationError, AppState, AppAction 型の実装
     - _要件: 1.1, 2.1, 3.1, 4.1_
   
-  - [ ] 2.2 初期ルールセットデータの作成
+  - [x] 2.2 初期ルールセットデータの作成
     - Figmaデザインルールセットの実装
     - LocalStorage用のデータ永続化ユーティリティ
     - _要件: 1.1, 4.1, 4.2_

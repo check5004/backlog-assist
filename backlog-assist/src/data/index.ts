@@ -1,2 +1,7 @@
 // Export all data from this file
-export { figmaDesignRules } from './ruleSets';
+export { 
+  figmaDesignRules, 
+  codeReviewRules, 
+  uiTestRules, 
+  allRuleSets 
+} from './ruleSets';
