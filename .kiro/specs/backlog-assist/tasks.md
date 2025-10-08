@@ -17,8 +17,13 @@
     - LocalStorage用のデータ永続化ユーティリティ
     - _要件: 1.1, 4.1, 4.2_
 
-- [ ] 3. 状態管理システムの実装
-  - [ ] 3.1 React Context とReducerの実装
+- [-] 3. 状態管理システムの実装
+
+
+  - [x] 3.1 React Context とReducerの実装
+
+
+
     - AppContext の作成と状態管理ロジック
     - アクション定義とreducer関数の実装
     - _要件: 1.3, 2.4, 3.1_

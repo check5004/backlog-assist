@@ -1,2 +1,3 @@
-// Export all contexts from this file
-export { AppProvider, useAppContext } from './AppContext';
+// Export all context-related functionality
+export { AppProvider } from './AppContext';
+export { useAppContext } from './useAppContext';
