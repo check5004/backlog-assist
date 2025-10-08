@@ -1,6 +1,7 @@
 # 実装計画
 
-- [ ] 1. プロジェクト初期設定とコア構造の構築
+- [x] 1. プロジェクト初期設定とコア構造の構築
+
   - Vite + React + TypeScript プロジェクトの初期化
   - Tailwind CSS の設定とベースレイアウトの作成
   - プロジェクト構造の作成（components, contexts, types, utils, data フォルダ）
