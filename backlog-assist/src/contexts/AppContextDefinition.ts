@@ -6,7 +6,7 @@ export interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
   // Helper functions for common operations
-  setRuleSet: (ruleSet: RuleSet) => void;
+  setRuleSet: (ruleSet: RuleSet | null) => void;
   updateChecklistItem: (itemId: string, checked: boolean) => void;
   updateReportData: (data: Partial<ReportData>) => void;
   generateMarkdown: (markdown: string) => void;

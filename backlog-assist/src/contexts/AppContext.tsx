@@ -42,6 +42,14 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    case 'RESET_RULE_SET':
+      return {
+        ...state,
+        selectedRuleSet: null,
+        checklist: [],
+        generatedMarkdown: ''
+      };
+
     case 'UPDATE_CHECKLIST':
       return {
         ...state,
@@ -85,8 +93,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
   // Helper function to set rule set
-  const setRuleSet = (ruleSet: RuleSet) => {
-    dispatch({ type: 'SET_RULE_SET', payload: ruleSet });
+  const setRuleSet = (ruleSet: RuleSet | null) => {
+    if (ruleSet) {
+      dispatch({ type: 'SET_RULE_SET', payload: ruleSet });
+    } else {
+      dispatch({ type: 'RESET_RULE_SET' });
+    }
   };
 
   // Helper function to update individual checklist item

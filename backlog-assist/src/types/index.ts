@@ -50,6 +50,7 @@ export interface AppState {
 
 export type AppAction = 
   | { type: 'SET_RULE_SET'; payload: RuleSet }
+  | { type: 'RESET_RULE_SET' }
   | { type: 'UPDATE_CHECKLIST'; payload: ChecklistItem[] }
   | { type: 'UPDATE_REPORT_DATA'; payload: ReportData }
   | { type: 'GENERATE_MARKDOWN'; payload: string }
