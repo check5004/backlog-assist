@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { RuleSet, ChecklistItem } from '../../types';
 import { useAppContext } from '../../contexts';
+import RuleSetManager from '../RuleSetManager';
 
 interface ChecklistGeneratorProps {
   selectedRuleSet: RuleSet | null;
@@ -14,11 +15,18 @@ const ChecklistGenerator: React.FC<ChecklistGeneratorProps> = ({
   onChecklistUpdate
 }) => {
   const { state, setRuleSet, updateChecklistItem } = useAppContext();
+  const [showRuleSetManager, setShowRuleSetManager] = useState(false);
 
   // Handle rule set selection
   const handleRuleSetSelect = (ruleSet: RuleSet) => {
     setRuleSet(ruleSet);
     onRuleSetChange(ruleSet);
+  };
+
+  // Handle rule set selection from RuleSetManager
+  const handleRuleSetManagerSelect = (ruleSet: RuleSet) => {
+    handleRuleSetSelect(ruleSet);
+    setShowRuleSetManager(false); // Close manager after selection
   };
 
   // Handle individual checklist item toggle
@@ -45,47 +53,83 @@ const ChecklistGenerator: React.FC<ChecklistGeneratorProps> = ({
     <div className="space-y-6">
       {/* Rule Set Selection */}
       <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          ルールセット選択
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">
+            ルールセット選択
+          </h3>
+          <button
+            onClick={() => setShowRuleSetManager(!showRuleSetManager)}
+            className="px-3 py-1 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+          >
+            {showRuleSetManager ? '簡易表示' : '管理画面'}
+          </button>
+        </div>
         
-        {!selectedRuleSet ? (
-          <div className="space-y-3">
-            <p className="text-gray-600 mb-4">
-              チェックリスト生成用のルールセットを選択してください
-            </p>
-            <div className="grid gap-3">
-              {state.availableRuleSets.map((ruleSet) => (
-                <button
-                  key={ruleSet.id}
-                  onClick={() => handleRuleSetSelect(ruleSet)}
-                  className="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
-                >
-                  <div className="font-medium text-gray-900">{ruleSet.name}</div>
-                  <div className="text-sm text-gray-600 mt-1">{ruleSet.description}</div>
-                  <div className="text-xs text-gray-500 mt-2">
-                    {ruleSet.rules.length} 項目 • バージョン {ruleSet.version}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+        {showRuleSetManager ? (
+          <RuleSetManager
+            onRuleSetSelect={handleRuleSetManagerSelect}
+            showManagementFeatures={true}
+          />
         ) : (
-          <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div>
-              <div className="font-medium text-blue-900">{selectedRuleSet.name}</div>
-              <div className="text-sm text-blue-700">{selectedRuleSet.description}</div>
-            </div>
-            <button
-              onClick={() => {
-                setRuleSet(null); // Reset rule set
-                onRuleSetChange(null); // Reset rule set selection
-              }}
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
-            >
-              変更
-            </button>
-          </div>
+          <>
+            {!selectedRuleSet ? (
+              <div className="space-y-3">
+                <p className="text-gray-600 mb-4">
+                  チェックリスト生成用のルールセットを選択してください
+                </p>
+                <div className="grid gap-3">
+                  {state.availableRuleSets.map((ruleSet) => (
+                    <button
+                      key={ruleSet.id}
+                      onClick={() => handleRuleSetSelect(ruleSet)}
+                      className="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900">{ruleSet.name}</div>
+                      <div className="text-sm text-gray-600 mt-1">{ruleSet.description}</div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        {ruleSet.rules.length} 項目 • バージョン {ruleSet.version}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                
+                {state.availableRuleSets.length > 3 && (
+                  <div className="pt-3 border-t border-gray-200">
+                    <button
+                      onClick={() => setShowRuleSetManager(true)}
+                      className="w-full p-3 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors"
+                    >
+                      すべてのルールセットを表示 ({state.availableRuleSets.length} セット)
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div>
+                  <div className="font-medium text-blue-900">{selectedRuleSet.name}</div>
+                  <div className="text-sm text-blue-700">{selectedRuleSet.description}</div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowRuleSetManager(true)}
+                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                  >
+                    管理
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRuleSet(null); // Reset rule set
+                      onRuleSetChange(null); // Reset rule set selection
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                  >
+                    変更
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
