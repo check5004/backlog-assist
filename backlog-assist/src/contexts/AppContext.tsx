@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import type { AppState, AppAction, RuleSet, ChecklistItem, ReportData } from '../types';
 import { allRuleSets } from '../data/ruleSets';
 import { localStorageUtils } from '../utils/localStorage';
-import { AppContext, type AppContextType } from './AppContextDefinition';
+import { AppContext } from './AppContextDefinition';
+import type { AppContextType } from './AppContextDefinition';
 
 // Initial state for the application
 const initialReportData: ReportData = {
@@ -97,6 +98,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeFromStorage = () => {
       try {
+        // Validate stored data integrity first
+        const validation = localStorageUtils.validateStoredData();
+        if (!validation.isValid) {
+          console.warn('Data integrity issues found:', validation.errors);
+          
+          // Attempt to repair data
+          const repair = localStorageUtils.repairData();
+          if (repair.repaired) {
+            console.log('Data repair completed:', repair.actions);
+          }
+        }
+
         // Load stored rule sets and merge with defaults
         const storedRuleSets = localStorageUtils.getRuleSets();
         const mergedRuleSets = [...allRuleSets];
@@ -116,7 +129,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         // Load saved form data
         const savedFormData = localStorageUtils.getFormData();
         if (savedFormData) {
-          dispatch({ type: 'UPDATE_REPORT_DATA', payload: savedFormData as ReportData });
+          // Merge with initial data to ensure all required fields exist
+          // Note: screenshots are saved as strings (file names) but we need File objects
+          // So we reset screenshots to empty array since we can't recreate File objects
+          const completeFormData = { 
+            ...initialReportData, 
+            ...savedFormData,
+            screenshots: [] // Reset screenshots since we can't restore File objects
+          };
+          dispatch({ type: 'UPDATE_REPORT_DATA', payload: completeFormData });
         }
 
         // Load saved checklist state
@@ -126,6 +147,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
       } catch (error) {
         console.error('Failed to initialize from localStorage:', error);
+        // If initialization fails completely, try to repair data
+        try {
+          const repair = localStorageUtils.repairData();
+          if (repair.repaired) {
+            console.log('Emergency data repair completed:', repair.actions);
+          }
+        } catch (repairError) {
+          console.error('Failed to repair data:', repairError);
+        }
       }
     };
 
@@ -174,13 +204,30 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     dispatch({ type: 'GENERATE_MARKDOWN', payload: markdown });
   };
 
+  // Helper function to clear all temporary data
+  const clearTemporaryData = () => {
+    try {
+      localStorageUtils.clearFormData();
+      localStorageUtils.clearChecklistState();
+      
+      // Reset state to initial values
+      dispatch({ type: 'UPDATE_REPORT_DATA', payload: initialReportData });
+      dispatch({ type: 'UPDATE_CHECKLIST', payload: [] });
+      dispatch({ type: 'RESET_RULE_SET' });
+      dispatch({ type: 'GENERATE_MARKDOWN', payload: '' });
+    } catch (error) {
+      console.error('Failed to clear temporary data:', error);
+    }
+  };
+
   const contextValue: AppContextType = {
     state,
     dispatch,
     setRuleSet,
     updateChecklistItem,
     updateReportData,
-    generateMarkdown
+    generateMarkdown,
+    clearTemporaryData
   };
 
   return (

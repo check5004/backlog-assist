@@ -4,10 +4,12 @@ import ChecklistGenerator from './components/ChecklistGenerator/ChecklistGenerat
 import ReportForm from './components/ReportForm/ReportForm';
 import MarkdownOutput from './components/MarkdownOutput/MarkdownOutput';
 import type { RuleSet, ChecklistItem, ReportData, ValidationError } from './types';
+// Import localStorage demo for development testing
+import './utils/localStorageDemo';
 
 // Main app content component that uses the context
 function AppContent() {
-  const { state, updateReportData, generateMarkdown } = useAppContext();
+  const { state, updateReportData } = useAppContext();
   const [notification, setNotification] = React.useState<{
     type: 'success' | 'error' | 'info';
     message: string;

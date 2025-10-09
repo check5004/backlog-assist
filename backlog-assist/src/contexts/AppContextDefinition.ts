@@ -10,6 +10,7 @@ export interface AppContextType {
   updateChecklistItem: (itemId: string, checked: boolean) => void;
   updateReportData: (data: Partial<ReportData>) => void;
   generateMarkdown: (markdown: string) => void;
+  clearTemporaryData: () => void;
 }
 
 // Create the context

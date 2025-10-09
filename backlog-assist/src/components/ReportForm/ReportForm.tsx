@@ -33,6 +33,16 @@ const ReportForm: React.FC<ReportFormProps> = ({
     }
 
     files.forEach((file, index) => {
+      // Add null check to prevent runtime errors
+      if (!file) {
+        errors.push({
+          field: 'screenshots',
+          message: `ファイル${index + 1}: 無効なファイルです`,
+          type: 'type'
+        });
+        return;
+      }
+
       if (!allowedTypes.includes(file.type)) {
         errors.push({
           field: 'screenshots',
