@@ -580,22 +580,34 @@ const ReportForm: React.FC<ReportFormProps> = ({
                   )}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {reportData.screenshots.map((file, index) => (
-                    <div key={`${file.name}-${index}`} className="relative group">
-                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Screenshot ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onLoad={(e) => {
-                            // Clean up object URL to prevent memory leaks
-                            const img = e.target as HTMLImageElement;
-                            setTimeout(() => URL.revokeObjectURL(img.src), 1000);
-                          }}
-                        />
-                      </div>
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
-                        <button
+                  {reportData.screenshots.map((file, index) => {
+                    // Check if file is a valid File object
+                    if (!(file instanceof File)) {
+                      console.warn('Invalid file object at index', index, file);
+                      return null;
+                    }
+                    
+                    return (
+                      <div key={`${file.name}-${index}`} className="relative group">
+                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Screenshot ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onLoad={(e) => {
+                              // Clean up object URL to prevent memory leaks
+                              const img = e.target as HTMLImageElement;
+                              setTimeout(() => URL.revokeObjectURL(img.src), 1000);
+                            }}
+                            onError={(e) => {
+                              console.error('Failed to load image:', file.name);
+                              const img = e.target as HTMLImageElement;
+                              URL.revokeObjectURL(img.src);
+                            }}
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
+                          <button
                           onClick={() => removeFile(index)}
                           className="opacity-0 group-hover:opacity-100 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-all duration-200"
                           title="ファイルを削除"
@@ -603,16 +615,17 @@ const ReportForm: React.FC<ReportFormProps> = ({
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                        </button>
+                          </button>
+                        </div>
+                        <p className="mt-1 text-xs text-gray-600 truncate" title={file.name}>
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatFileSize(file.size)}
+                        </p>
                       </div>
-                      <p className="mt-1 text-xs text-gray-600 truncate" title={file.name}>
-                        {file.name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatFileSize(file.size)}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  }).filter(Boolean)}
                 </div>
               </div>
             )}
