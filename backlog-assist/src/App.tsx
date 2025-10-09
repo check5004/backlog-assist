@@ -1,10 +1,11 @@
 import { AppProvider, useAppContext } from './contexts';
 import ChecklistGenerator from './components/ChecklistGenerator/ChecklistGenerator';
-import type { RuleSet, ChecklistItem } from './types';
+import ReportForm from './components/ReportForm/ReportForm';
+import type { RuleSet, ChecklistItem, ReportData, ValidationError } from './types';
 
 // Main app content component that uses the context
 function AppContent() {
-  const { state } = useAppContext();
+  const { state, updateReportData } = useAppContext();
   
   // Handle rule set change from ChecklistGenerator
   const handleRuleSetChange = (ruleSet: RuleSet | null) => {
@@ -16,6 +17,16 @@ function AppContent() {
   const handleChecklistUpdate = (checklist: ChecklistItem[]) => {
     // The context already handles this through updateChecklistItem
     console.log('Checklist updated:', checklist.filter(item => item.checked).length, 'items checked');
+  };
+
+  // Handle report data changes from ReportForm
+  const handleReportDataChange = (data: ReportData) => {
+    updateReportData(data);
+  };
+
+  // Handle validation errors from ReportForm
+  const handleValidationError = (errors: ValidationError[]) => {
+    console.log('Validation errors:', errors);
   };
   
   return (
@@ -41,6 +52,13 @@ function AppContent() {
             onRuleSetChange={handleRuleSetChange}
             onChecklistUpdate={handleChecklistUpdate}
           />
+
+          {/* Report Form Section */}
+          <ReportForm
+            reportData={state.reportData}
+            onReportDataChange={handleReportDataChange}
+            onValidationError={handleValidationError}
+          />
           
           {/* Status Information */}
           <div className="bg-white rounded-lg shadow p-6">
@@ -57,9 +75,9 @@ function AppContent() {
                 <h3 className="font-medium text-blue-900">✅ ChecklistGenerator</h3>
                 <p className="text-sm text-blue-700">チェックリスト生成機能</p>
               </div>
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-medium text-gray-900">⏳ ReportForm</h3>
-                <p className="text-sm text-gray-600">報告フォーム（未実装）</p>
+              <div className="p-4 border rounded-lg bg-green-50 border-green-200">
+                <h3 className="font-medium text-green-900">✅ ReportForm</h3>
+                <p className="text-sm text-green-700">報告フォーム機能</p>
               </div>
               <div className="p-4 border rounded-lg">
                 <h3 className="font-medium text-gray-900">⏳ MarkdownOutput</h3>
