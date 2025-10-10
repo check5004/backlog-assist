@@ -44,39 +44,78 @@ export class BacklogApiClientImpl implements BacklogApiClient {
     }
 
     try {
-      // TODO: Implement actual API authentication
-      // For now, return a mock response
       console.log('Authenticating with Backlog API...');
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Construct API URL for getting user information
+      const baseUrl = this.config!.baseUrl.replace(/\/$/, '');
+      const apiUrl = `${baseUrl}/api/v2/users/myself?apiKey=${this.config!.apiKey}`;
       
-      // Mock successful authentication
-      const mockUser: BacklogUser = {
-        id: 1,
-        userId: 'demo-user',
-        name: 'Demo User',
-        roleType: 1,
-        lang: 'ja',
-        mailAddress: 'demo@example.com'
-      };
+      // Make actual API call to authenticate
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
+      if (!response.ok) {
+        let errorMessage = 'Authentication failed';
+        let errorCode = 'AUTH_FAILED';
+        
+        if (response.status === 401) {
+          errorMessage = 'APIキーが無効です';
+          errorCode = 'INVALID_API_KEY';
+        } else if (response.status === 403) {
+          errorMessage = 'APIアクセスが許可されていません';
+          errorCode = 'ACCESS_DENIED';
+        } else if (response.status === 404) {
+          errorMessage = 'Backlog URLが正しくありません';
+          errorCode = 'INVALID_URL';
+        } else if (response.status >= 500) {
+          errorMessage = 'Backlogサーバーエラーが発生しました';
+          errorCode = 'SERVER_ERROR';
+        }
+
+        return {
+          success: false,
+          error: {
+            message: errorMessage,
+            code: errorCode,
+            statusCode: response.status
+          }
+        };
+      }
+
+      const userData: BacklogUser = await response.json();
+      
       this.isAuthenticated = true;
-      this.currentUser = mockUser;
+      this.currentUser = userData;
+
+      console.log('Authentication successful:', userData.name);
 
       return {
         success: true,
-        data: mockUser
+        data: userData
       };
     } catch (error) {
-      const apiError: BacklogApiError = {
-        message: error instanceof Error ? error.message : 'Authentication failed',
-        code: 'AUTH_FAILED'
-      };
+      console.error('Authentication error:', error);
+      
+      let errorMessage = 'Authentication failed';
+      let errorCode = 'AUTH_FAILED';
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'ネットワークエラー: Backlogサーバーに接続できません';
+        errorCode = 'NETWORK_ERROR';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
 
       return {
         success: false,
-        error: apiError
+        error: {
+          message: errorMessage,
+          code: errorCode
+        }
       };
     }
   }
@@ -93,33 +132,50 @@ export class BacklogApiClientImpl implements BacklogApiClient {
     }
 
     try {
-      // TODO: Implement actual API call
       console.log('Fetching project:', projectKey);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Construct API URL for getting project information
+      const baseUrl = this.config!.baseUrl.replace(/\/$/, '');
+      const apiUrl = `${baseUrl}/api/v2/projects/${projectKey}?apiKey=${this.config!.apiKey}`;
       
-      // Mock project data
-      const mockProject: BacklogProject = {
-        id: 1,
-        projectKey: projectKey,
-        name: `${projectKey} Project`,
-        chartEnabled: true,
-        subtaskingEnabled: true,
-        projectLeaderCanEditProjectLeader: false,
-        useWiki: true,
-        useFileSharing: true,
-        useDevAttributes: false,
-        useResolvedForChart: true,
-        textFormattingRule: 'markdown',
-        archived: false
-      };
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to fetch project';
+        let errorCode = 'PROJECT_FETCH_FAILED';
+        
+        if (response.status === 404) {
+          errorMessage = `プロジェクト "${projectKey}" が見つかりません`;
+          errorCode = 'PROJECT_NOT_FOUND';
+        } else if (response.status === 403) {
+          errorMessage = 'プロジェクトへのアクセス権限がありません';
+          errorCode = 'ACCESS_DENIED';
+        }
+
+        return {
+          success: false,
+          error: {
+            message: errorMessage,
+            code: errorCode,
+            statusCode: response.status
+          }
+        };
+      }
+
+      const projectData: BacklogProject = await response.json();
 
       return {
         success: true,
-        data: mockProject
+        data: projectData
       };
     } catch (error) {
+      console.error('Project fetch error:', error);
+      
       return {
         success: false,
         error: {

@@ -1,9 +1,11 @@
 import React from 'react';
 import { AppProvider, useAppContext } from './contexts';
+import { BacklogAuthProvider } from './contexts/BacklogAuthContext';
 import ChecklistGenerator from './components/ChecklistGenerator/ChecklistGenerator';
 import ReportForm from './components/ReportForm/ReportForm';
 import MarkdownOutput from './components/MarkdownOutput/MarkdownOutput';
 import Settings from './components/Settings/Settings';
+import BacklogStatus from './components/BacklogStatus/BacklogStatus';
 import type { RuleSet, ChecklistItem, ReportData, ValidationError } from './types';
 // Import localStorage demo for development testing
 import './utils/localStorageDemo';
@@ -17,6 +19,7 @@ function AppContent() {
   } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [showSettings, setShowSettings] = React.useState(false);
+  const [settingsTab, setSettingsTab] = React.useState<'general' | 'backlog'>('general');
   
   // Show notification helper
   const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
@@ -145,16 +148,25 @@ function AppContent() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Backlog Assist
-              </h1>
-              <p className="text-sm text-gray-600">
-                課題報告支援ツール
-              </p>
+            <div className="flex items-center space-x-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Backlog Assist
+                </h1>
+                <p className="text-sm text-gray-600">
+                  課題報告支援ツール
+                </p>
+              </div>
+              <BacklogStatus compact onOpenSettings={() => {
+                setSettingsTab('backlog');
+                setShowSettings(true);
+              }} />
             </div>
             <button
-              onClick={() => setShowSettings(true)}
+              onClick={() => {
+                setSettingsTab('general');
+                setShowSettings(true);
+              }}
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,6 +238,12 @@ function AppContent() {
                   </div>
                 </div>
 
+                {/* Backlog Integration Status */}
+                <BacklogStatus onOpenSettings={() => {
+                  setSettingsTab('backlog');
+                  setShowSettings(true);
+                }} />
+
                 {/* Progress Indicator */}
                 {state.checklist.length > 0 && (
                   <div className="mt-4">
@@ -251,7 +269,10 @@ function AppContent() {
 
       {/* Settings Modal */}
       {showSettings && (
-        <Settings onClose={() => setShowSettings(false)} />
+        <Settings 
+          onClose={() => setShowSettings(false)} 
+          initialTab={settingsTab}
+        />
       )}
     </div>
   );
@@ -261,7 +282,9 @@ function AppContent() {
 function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <BacklogAuthProvider>
+        <AppContent />
+      </BacklogAuthProvider>
     </AppProvider>
   );
 }

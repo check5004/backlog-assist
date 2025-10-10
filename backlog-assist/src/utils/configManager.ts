@@ -395,6 +395,40 @@ export class ConfigManagerImpl implements ConfigManager {
     });
   }
 
+  // Authentication state management
+  updateBacklogAuthConfig(config: BacklogApiConfig): void {
+    const currentBacklogApi = this.config.backlogApi || {
+      enabled: false,
+      autoFetchIssueDetails: false,
+      autoUploadScreenshots: false
+    };
+    
+    this.updateConfig({
+      backlogApi: {
+        ...currentBacklogApi,
+        enabled: true,
+        config: config
+      }
+    });
+  }
+
+  clearBacklogAuthConfig(): void {
+    const currentBacklogApi = this.config.backlogApi;
+    if (currentBacklogApi) {
+      this.updateConfig({
+        backlogApi: {
+          ...currentBacklogApi,
+          enabled: false,
+          config: undefined
+        }
+      });
+    }
+  }
+
+  getBacklogAuthConfig(): BacklogApiConfig | null {
+    return this.config.backlogApi?.config || null;
+  }
+
   // Debug and utility methods
   getConfigSummary(): Record<string, any> {
     return {
