@@ -11,13 +11,14 @@ function Settings({ onClose, initialTab = 'general' }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<'general' | 'backlog'>(initialTab);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-full overflow-hidden flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-xl font-semibold text-gray-900">設定</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -25,9 +26,10 @@ function Settings({ onClose, initialTab = 'general' }: SettingsProps) {
           </button>
         </div>
 
-        <div className="flex h-[calc(90vh-120px)]">
+        {/* Content Area - Flexible */}
+        <div className="flex flex-1 min-h-0">
           {/* Sidebar */}
-          <div className="w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+          <div className="w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto flex-shrink-0">
             <nav className="p-4 space-y-2">
               <button
                 onClick={() => setActiveTab('general')}
@@ -102,8 +104,8 @@ function Settings({ onClose, initialTab = 'general' }: SettingsProps) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
+        {/* Footer - Fixed */}
+        <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
